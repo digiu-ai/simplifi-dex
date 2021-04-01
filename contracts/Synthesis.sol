@@ -1,15 +1,11 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-//import "@openzeppelin/contracts/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-
 import "./IBridge.sol";
 import "./ISyntERC20.sol";
 import "./SyntERC20.sol";
 import "./ISyntERC20.sol";
-import '@openzeppelin/contracts/utils/math/SafeMath.sol';
-//import "./libraries/Other.sol";
 
 contract Synthesis is Ownable{
 
@@ -19,7 +15,16 @@ contract Synthesis is Ownable{
     mapping (address => address) public representationSynt;
     uint256 requestCount = 1;
     mapping (bytes32 => TxState) public requests;
-    mapping (bytes32 => MintState) public mintingStates;
+    mapping (bytes32 => MintState) public syntasizeStates;
+    enum RequestState { Sent, Reverted}
+    enum UnsynthesizeState { Unsynthesized, RevertRequest}
+
+
+    event BurnRequest(bytes32 indexed _id, address indexed _from, address indexed _to,  uint _amount,address _token);
+    event RevertSynthesizeRequest(bytes32 indexed _id, address indexed _to);
+    event SynthesisizeCompleted(bytes32 indexed _id, address indexed _to, uint _amount,address _token);
+    event RevertBurnCompleted(bytes32 indexed _id, address indexed _to, uint _amount, address _token);
+
 
     constructor(address  bridgeAdr)  {
         bridge = bridgeAdr;
@@ -36,7 +41,7 @@ contract Synthesis is Ownable{
     uint256 amount;
     address token;
     address stoken;
-    uint256 state;
+    RequestState state;
   }
 
   // 1 - succesful minting
@@ -44,8 +49,6 @@ contract Synthesis is Ownable{
   struct MintState {
       uint256 state;
   }
-
-
 
     // SYNT
     function mintSyntheticToken(bytes32 _txID, address _tokenReal, uint256 _amount, address _to) onlyBridge external {
@@ -57,56 +60,57 @@ contract Synthesis is Ownable{
         ISyntERC20(representationSynt[_tokenReal]).mint(_to, _amount);
 
         mintState.state = 1;
+
+        event SynthesisizeCompleted(_txID, _to, _amount,_tokenReal;
     }
 
     // can call several times
-    function emergencyCashoutRequest(bytes32 _txID) external{
+    function emergencyUnsyntesizeRequest(bytes32 _txID) external{
         MintState storage mintState = mintingStates[_txID];
         require(mintState.state != 1, "Synt: syntatic tokens already minted");
         mintState.state = 2;// close
-
-        bytes memory out  = abi.encodeWithSelector(bytes4(keccak256(bytes('emergencyCashout(bytes32)'))),_txID);
+        bytes memory out  = abi.encodeWithSelector(bytes4(keccak256(bytes('emergencyUnsyntesize(bytes32)'))),_txID);
         // TODO add payment by token
-        //IBridge(bridge).transmitRequest(SET_REQUEST_TYPE, IHexstring(util).bytesToHexString(out), Other.toAsciiString(portal));
-        IBridge(bridge).transmitRequest(out, portal);
+        IBridge(bridge).transmitRequestV2(out, portal);
+
+        emit RevertSynthesizeRequest(_txID, msg.sender);
     }
 
 
 
 
     // BURN
-    function burn(address _stoken,uint256 _amount, address chain2address) external returns (bytes32 txID) {
+    function burnSyntheticToken(address _stoken,uint256 _amount, address chain2address) external returns (bytes32 txID) {
         // проверить что при берне больше чем имеется кидается revert
-        ISyntERC20(representationReal[_stoken]).burn(msg.sender, _amount);
+        ISyntERC20(_stoken).burn(msg.sender, _amount);
 
         txID = keccak256(abi.encodePacked(this, requestCount));
 
         bytes memory out  = abi.encodeWithSelector(bytes4(keccak256(bytes('unsynthesize(bytes32,address,uint256,address)'))),txID, representationReal[_stoken], _amount, chain2address);
         // TODO add payment by token
         //IBridge(bridge).transmitRequest(SET_REQUEST_TYPE, IHexstring(util).bytesToHexString(out), Other.toAsciiString(portal));
-        IBridge(bridge).transmitRequest(out, portal);
+        IBridge(bridge).transmitRequestV2(out, portal);
         TxState storage txState = requests[txID];
         txState.recepient    = msg.sender;
         txState.chain2address    = chain2address;
         txState.stoken     = _stoken;
         txState.amount     = _amount;
-        txState.state = 1;
+        txState.state = RequestState.Sent;
 
         requestCount += 1;
+
+        emit BurnRequest(txID, msg.sender, _chain2address, _amount, _stoken);
     }
 
-     // TODO uint заменить на другой тип данных
-    // вызывается из другого чейна
-    // после того как по транзе был revert
+
+
     function emergencyUnburn(bytes32 _txID) onlyBridge external {
-        // проверить были ли деньги по этой транзе
-        // проверить что токены еще не были выданы
-        // выдать токены
         TxState storage txState = requests[_txID];
-        // проверяем что транзакция была и не закрыта
-        require(txState.state == 1 , 'Synt:state not open or tx does not exist');
-        txState.state = 2; // close
+        require(txState.state ==  RequestState.Sent, 'Synt:state not open or tx does not exist');
+        txState.state = RequestState.Reverted; // close
         ISyntERC20(txState.stoken).mint(txState.recepient, txState.amount);
+
+        emit RevertBurnCompleted(_txID, txState.recepient, txState.amount, txState.stoken);
     }
 
 
