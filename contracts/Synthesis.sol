@@ -47,7 +47,7 @@ contract Synthesis is Ownable{
     // SYNT
     function mintSyntheticToken(bytes32 _txID, address _tokenReal, uint256 _amount, address _to) onlyBridge external {
        // todo add chek to Default - чтобы не было по бриджу
-        require(synthesizeStates[_txID] == Default, "Synt: emergencyUnsynthesizedRequest called or tokens has been already synthesized");
+        require(synthesizeStates[_txID] == SynthesizeState.Default, "Synt: emergencyUnsynthesizedRequest called or tokens has been already synthesized");
         ISyntERC20(representationSynt[_tokenReal]).mint(_to, _amount);
         synthesizeStates[_txID] = SynthesizeState.Synthesized;
         emit SynthesisizeCompleted(_txID, _to, _amount, _tokenReal);
@@ -68,16 +68,16 @@ contract Synthesis is Ownable{
 
 
     // BURN
-    function burnSyntheticToken(address _stoken,uint256 _amount, address chain2address) external returns (bytes32 txID) {
+    function burnSyntheticToken(address _stoken,uint256 _amount, address _chain2address) external returns (bytes32 txID) {
         ISyntERC20(_stoken).burn(msg.sender, _amount);
         txID = keccak256(abi.encodePacked(this, requestCount));
 
-        bytes memory out  = abi.encodeWithSelector(bytes4(keccak256(bytes('unsynthesize(bytes32,address,uint256,address)'))),txID, representationReal[_stoken], _amount, chain2address);
+        bytes memory out  = abi.encodeWithSelector(bytes4(keccak256(bytes('unsynthesize(bytes32,address,uint256,address)'))),txID, representationReal[_stoken], _amount, _chain2address);
         // TODO add payment by token
         IBridge(bridge).transmitRequestV2(out, portal);
         TxState storage txState = requests[txID];
         txState.recepient    = msg.sender;
-        txState.chain2address    = chain2address;
+        txState.chain2address    = _chain2address;
         txState.stoken     = _stoken;
         txState.amount     = _amount;
         txState.state = RequestState.Sent;
