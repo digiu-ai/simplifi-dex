@@ -12,8 +12,8 @@ contract Portal is Ownable {
     mapping(address => uint) public balanceOf;
 
 
-    enum RequestState { Sent, Reverted}
-    enum UnsynthesizeState { Unsynthesized, RevertRequest}
+    enum RequestState { Default, Sent, Reverted}
+    enum UnsynthesizeState { Default, Unsynthesized, RevertRequest}
 
     struct TxState {
     address recepient;
@@ -31,7 +31,7 @@ contract Portal is Ownable {
 
     event SynthesizeRequest(bytes32 indexed _id, address indexed  _from, address indexed _to, uint _amount,address _token);
     event RevertBurnRequest(bytes32 indexed _id, address indexed _to);
-    event UnsynthesizeCompleted(bytes32 indexed _id, address indexed _to, uint _amount,address _token);
+    event BurnCompleted(bytes32 indexed _id, address indexed _to, uint _amount,address _token);
     event RevertSynthesizeCompleted(bytes32 indexed _id, address indexed _to, uint _amount, address _token);
 
 

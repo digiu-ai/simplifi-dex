@@ -15,9 +15,9 @@ contract Synthesis is Ownable{
     mapping (address => address) public representationSynt;
     uint256 requestCount = 1;
     mapping (bytes32 => TxState) public requests;
-    mapping (bytes32 => MintState) public syntasizeStates;
+    mapping (bytes32 => SynthesizeState) public syntasizeStates;
     enum RequestState { Sent, Reverted}
-    enum UnsynthesizeState { Unsynthesized, RevertRequest}
+    enum SynthesizeState { Synthesized, RevertRequest}
 
 
     event BurnRequest(bytes32 indexed _id, address indexed _from, address indexed _to,  uint _amount,address _token);
@@ -52,16 +52,11 @@ contract Synthesis is Ownable{
 
     // SYNT
     function mintSyntheticToken(bytes32 _txID, address _tokenReal, uint256 _amount, address _to) onlyBridge external {
-       // mb create syntatic _token if it doesn't exist
-
-       MintState storage mintState = mintingStates[_txID];
-        require(mintState.state != 2, "Synt: emergency cashout request called");
-
+       // todo add chek to Default - чтобы не было по бриджу
+        require(syntasizeStates[_txID] != SynthesizeState.RevertRequest, "Synt: emergency cashout request called");
         ISyntERC20(representationSynt[_tokenReal]).mint(_to, _amount);
-
-        mintState.state = 1;
-
-        event SynthesisizeCompleted(_txID, _to, _amount,_tokenReal;
+        syntasizeStates[_txID] = SynthesizeState.Synthesized;
+        emit SynthesisizeCompleted(_txID, _to, _amount, _tokenReal);
     }
 
     // can call several times
@@ -88,7 +83,6 @@ contract Synthesis is Ownable{
 
         bytes memory out  = abi.encodeWithSelector(bytes4(keccak256(bytes('unsynthesize(bytes32,address,uint256,address)'))),txID, representationReal[_stoken], _amount, chain2address);
         // TODO add payment by token
-        //IBridge(bridge).transmitRequest(SET_REQUEST_TYPE, IHexstring(util).bytesToHexString(out), Other.toAsciiString(portal));
         IBridge(bridge).transmitRequestV2(out, portal);
         TxState storage txState = requests[txID];
         txState.recepient    = msg.sender;
@@ -106,7 +100,7 @@ contract Synthesis is Ownable{
 
     function emergencyUnburn(bytes32 _txID) onlyBridge external {
         TxState storage txState = requests[_txID];
-        require(txState.state ==  RequestState.Sent, 'Synt:state not open or tx does not exist');
+        require(txState.state ==  RequestState.Sent, 'Synt: state not open or tx does not exist');
         txState.state = RequestState.Reverted; // close
         ISyntERC20(txState.stoken).mint(txState.recepient, txState.amount);
 
@@ -116,9 +110,6 @@ contract Synthesis is Ownable{
 
 
     // utils
-
-
-    // TODO only contract can set representations
     function setRepresentation (address _rtoken, address _stoken) internal {
         representationSynt[_rtoken] = _stoken;
         representationReal[_stoken] = _rtoken;
