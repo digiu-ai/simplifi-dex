@@ -15,9 +15,9 @@ contract Synthesis is Ownable{
     mapping (address => address) public representationSynt;
     uint256 requestCount = 1;
     mapping (bytes32 => TxState) public requests;
-    mapping (bytes32 => SynthesizeState) public syntasizeStates;
-    enum RequestState { Sent, Reverted}
-    enum SynthesizeState { Synthesized, RevertRequest}
+    mapping (bytes32 => SynthesizeState) public synthesizeStates;
+    enum RequestState { Default, Sent, Reverted}
+    enum SynthesizeState { Default, Synthesized, RevertRequest}
 
 
     event BurnRequest(bytes32 indexed _id, address indexed _from, address indexed _to,  uint _amount,address _token);
@@ -44,26 +44,20 @@ contract Synthesis is Ownable{
     RequestState state;
   }
 
-  // 1 - succesful minting
-  // 2 - called revert
-  struct MintState {
-      uint256 state;
-  }
-
     // SYNT
     function mintSyntheticToken(bytes32 _txID, address _tokenReal, uint256 _amount, address _to) onlyBridge external {
        // todo add chek to Default - чтобы не было по бриджу
-        require(syntasizeStates[_txID] != SynthesizeState.RevertRequest, "Synt: emergency cashout request called");
+        require(synthesizeStates[_txID] == Default, "Synt: emergencyUnsynthesizedRequest called or tokens has been already synthesized");
         ISyntERC20(representationSynt[_tokenReal]).mint(_to, _amount);
-        syntasizeStates[_txID] = SynthesizeState.Synthesized;
+        synthesizeStates[_txID] = SynthesizeState.Synthesized;
         emit SynthesisizeCompleted(_txID, _to, _amount, _tokenReal);
     }
 
     // can call several times
     function emergencyUnsyntesizeRequest(bytes32 _txID) external{
-        MintState storage mintState = mintingStates[_txID];
-        require(mintState.state != 1, "Synt: syntatic tokens already minted");
-        mintState.state = 2;// close
+
+        require(synthesizeStates[_txID]!= SynthesizeState.Synthesized, "Synt: syntatic tokens already minted");
+        synthesizeStates[_txID] = SynthesizeState.RevertRequest;// close
         bytes memory out  = abi.encodeWithSelector(bytes4(keccak256(bytes('emergencyUnsyntesize(bytes32)'))),_txID);
         // TODO add payment by token
         IBridge(bridge).transmitRequestV2(out, portal);
@@ -73,12 +67,9 @@ contract Synthesis is Ownable{
 
 
 
-
     // BURN
     function burnSyntheticToken(address _stoken,uint256 _amount, address chain2address) external returns (bytes32 txID) {
-        // проверить что при берне больше чем имеется кидается revert
         ISyntERC20(_stoken).burn(msg.sender, _amount);
-
         txID = keccak256(abi.encodePacked(this, requestCount));
 
         bytes memory out  = abi.encodeWithSelector(bytes4(keccak256(bytes('unsynthesize(bytes32,address,uint256,address)'))),txID, representationReal[_stoken], _amount, chain2address);
@@ -106,7 +97,6 @@ contract Synthesis is Ownable{
 
         emit RevertBurnCompleted(_txID, txState.recepient, txState.amount, txState.stoken);
     }
-
 
 
     // utils

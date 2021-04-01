@@ -83,7 +83,7 @@ contract Portal is Ownable {
 
      // unsynthesize
     function unsynthesize(bytes32 _txID, address _token, uint256 _amount, address _to) onlyBridge external{
-        require(unsynthesizeStates[_txID] != UnsynthesizeState.RevertRequest, "Portal: syntatic tokens emergencyUnburn");
+        require(unsynthesizeStates[_txID] == UnsynthesizeState.Default, "Portal: syntatic tokens emergencyUnburn");
 
         TransferHelper.safeTransfer(_token, _to, _amount);
         balanceOf[_token] = balanceOf[_token].sub(_amount);
