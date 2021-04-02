@@ -34,20 +34,16 @@ contract Portal is Ownable {
     event BurnCompleted(bytes32 indexed _id, address indexed _to, uint _amount,address _token);
     event RevertSynthesizeCompleted(bytes32 indexed _id, address indexed _to, uint _amount, address _token);
 
-
     constructor(address bridgeAdr)  {
         bridge = bridgeAdr;
     }
-
-
 
   modifier onlyBridge {
         require(msg.sender == bridge);
         _;
     }
 
-
-    // synthesize
+    // Token -> sToken on a second chain
     function synthesize(address _token, uint256 _amount, address _chain2address)  external returns (bytes32 txID) {
         TransferHelper.safeTransferFrom(_token, msg.sender, address(this), _amount);
         balanceOf[_token] = balanceOf[_token].add(_amount);
@@ -68,7 +64,7 @@ contract Portal is Ownable {
         emit SynthesizeRequest(txID, msg.sender, _chain2address, _amount, _token);
     }
 
-
+    // can called only by bridge after initiation on a second chain
     function emergencyUnsyntesize(bytes32 _txID) onlyBridge external{
         TxState storage txState = requests[_txID];
         require(txState.state == RequestState.Sent , 'Synt:state not open or tx does not exist');
@@ -79,9 +75,7 @@ contract Portal is Ownable {
 
     }
 
-
-
-     // unsynthesize
+    // can called only by bridge after initiation on a second chain
     function unsynthesize(bytes32 _txID, address _token, uint256 _amount, address _to) onlyBridge external{
         require(unsynthesizeStates[_txID] == UnsynthesizeState.Default, "Portal: syntatic tokens emergencyUnburn");
 
@@ -92,8 +86,7 @@ contract Portal is Ownable {
         emit BurnCompleted(_txID, _to, _amount, _token);
     }
 
-
-    // can call several times
+    // Revert burnSyntheticToken() operation, can be called several times
     function emergencyUnburnRequest(bytes32 _txID) external {
         require(unsynthesizeStates[_txID] != UnsynthesizeState.Unsynthesized, "Portal: Real tokens already transfered");
         unsynthesizeStates[_txID] = UnsynthesizeState.RevertRequest;

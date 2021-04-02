@@ -21,6 +21,37 @@
 				"inputs": [
 					{
 						"indexed": true,
+						"internalType": "bytes32",
+						"name": "_id",
+						"type": "bytes32"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "_to",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "_amount",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "_token",
+						"type": "address"
+					}
+				],
+				"name": "BurnCompleted",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
 						"internalType": "address",
 						"name": "previousOwner",
 						"type": "address"
@@ -33,6 +64,93 @@
 					}
 				],
 				"name": "OwnershipTransferred",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "bytes32",
+						"name": "_id",
+						"type": "bytes32"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "_to",
+						"type": "address"
+					}
+				],
+				"name": "RevertBurnRequest",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "bytes32",
+						"name": "_id",
+						"type": "bytes32"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "_to",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "_amount",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "_token",
+						"type": "address"
+					}
+				],
+				"name": "RevertSynthesizeCompleted",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "bytes32",
+						"name": "_id",
+						"type": "bytes32"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "_from",
+						"type": "address"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "_to",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "_amount",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "_token",
+						"type": "address"
+					}
+				],
+				"name": "SynthesizeRequest",
 				"type": "event"
 			},
 			{
@@ -71,30 +189,11 @@
 				"inputs": [
 					{
 						"internalType": "bytes32",
-						"name": "",
-						"type": "bytes32"
-					}
-				],
-				"name": "burningStates",
-				"outputs": [
-					{
-						"internalType": "uint256",
-						"name": "state",
-						"type": "uint256"
-					}
-				],
-				"stateMutability": "view",
-				"type": "function"
-			},
-			{
-				"inputs": [
-					{
-						"internalType": "bytes32",
 						"name": "_txID",
 						"type": "bytes32"
 					}
 				],
-				"name": "emergencyCashout",
+				"name": "emergencyUnburnRequest",
 				"outputs": [],
 				"stateMutability": "nonpayable",
 				"type": "function"
@@ -107,7 +206,7 @@
 						"type": "bytes32"
 					}
 				],
-				"name": "emergencyUnburnRequest",
+				"name": "emergencyUnsyntesize",
 				"outputs": [],
 				"stateMutability": "nonpayable",
 				"type": "function"
@@ -163,9 +262,9 @@
 						"type": "address"
 					},
 					{
-						"internalType": "uint256",
+						"internalType": "enum Portal.RequestState",
 						"name": "state",
-						"type": "uint256"
+						"type": "uint8"
 					}
 				],
 				"stateMutability": "view",
@@ -279,6 +378,25 @@
 				"outputs": [],
 				"stateMutability": "nonpayable",
 				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "bytes32",
+						"name": "",
+						"type": "bytes32"
+					}
+				],
+				"name": "unsynthesizeStates",
+				"outputs": [
+					{
+						"internalType": "enum Portal.UnsynthesizeState",
+						"name": "",
+						"type": "uint8"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
 			}
 		],
 		"devdoc": {
@@ -304,7 +422,7 @@
 	},
 	"settings": {
 		"compilationTarget": {
-			"dex/dex_core/contracts/Portal.sol": "Portal"
+			"contracts_dex/contracts/Portal.sol": "Portal"
 		},
 		"evmVersion": "istanbul",
 		"libraries": {},
@@ -350,18 +468,18 @@
 				"dweb:/ipfs/QmZvR1KuuDvuzXFiADCngTKyMCTy31uhq9U6CazP59B55j"
 			]
 		},
-		"dex/dex_core/contracts/IBridge.sol": {
-			"keccak256": "0xc335408cc066b2a2274cfadfdfbe6361ed868e09c6b575fa60e138b0b24c0e0e",
+		"contracts_dex/contracts/IBridge.sol": {
+			"keccak256": "0xac874e6e5557f088b6c0b18c4a14f4713e1b5abb2cebced90d35e097cfffe8f3",
 			"urls": [
-				"bzz-raw://818a724e63f8b86a66822534b27e2e9d1b491b6fb07706b17c4be56630863e7c",
-				"dweb:/ipfs/QmWgEtHyEtm9omwgke4vNLoG5YjrbPQ93Dn4RvqtpymxwJ"
+				"bzz-raw://c41873586924d88606580d3ade905d96627ad477e025defe30a17604e393a2cd",
+				"dweb:/ipfs/QmSCVCUeprKc3UTqQG2jDC4NYiucXGtjdSnEvqjsfBH4Nz"
 			]
 		},
-		"dex/dex_core/contracts/Portal.sol": {
-			"keccak256": "0x87a6e2c49517418fdd09b5eade412fcc74b4585b80a28869ecaa21cd3ccb103b",
+		"contracts_dex/contracts/Portal.sol": {
+			"keccak256": "0x5b79accabb112d3a21cf081f4fdc7a8c58960e898425ec82164e1bb323a67301",
 			"urls": [
-				"bzz-raw://fe7eac6ccfad21252b340802f12a75f7ddfb68bbd6cc74a4f1f4b6a36f790c5e",
-				"dweb:/ipfs/QmYaE5grHavVhqtii6g94KmMCSAsrw2MM5WtYAEk7V7wfU"
+				"bzz-raw://7590cedd878865a97639165f26a555f85f6f5e79b44da04dbdd53dfe71e7cdbb",
+				"dweb:/ipfs/Qmf9fcR445eDPeDzUsHkdM4LWRkgB1gdLSpAdp776Nnn4c"
 			]
 		}
 	},

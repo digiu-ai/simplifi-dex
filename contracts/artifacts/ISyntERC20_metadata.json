@@ -1,6 +1,6 @@
 {
 	"compiler": {
-		"version": "0.8.3+commit.8d00100c"
+		"version": "0.8.1+commit.df193b15"
 	},
 	"language": "Solidity",
 	"output": {
@@ -257,7 +257,7 @@
 	},
 	"settings": {
 		"compilationTarget": {
-			"dex/dex_core/contracts/ISyntERC20.sol": "ISyntERC20"
+			"contracts_dex/contracts/ISyntERC20.sol": "ISyntERC20"
 		},
 		"evmVersion": "istanbul",
 		"libraries": {},
@@ -279,7 +279,7 @@
 				"dweb:/ipfs/QmaG3R2J9cz92YT77vFjYrjMNU2wHp4ypwYD62HqDUqS5U"
 			]
 		},
-		"dex/dex_core/contracts/ISyntERC20.sol": {
+		"contracts_dex/contracts/ISyntERC20.sol": {
 			"keccak256": "0xf55baa866ad9b573ad8eed88226bd67b3c0c74a4d46732ad7f74b6038c6dc764",
 			"urls": [
 				"bzz-raw://fc88c1a385ae44a6b3a21df3f9075c6ab96b21915363eeeb53cc11bdda92b12c",

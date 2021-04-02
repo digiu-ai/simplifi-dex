@@ -8,24 +8,13 @@
 			{
 				"inputs": [
 					{
-						"internalType": "bytes",
-						"name": "owner",
-						"type": "bytes"
-					},
-					{
 						"internalType": "address",
-						"name": "spender",
+						"name": "synt",
 						"type": "address"
 					}
 				],
-				"name": "transmitRequestV2",
-				"outputs": [
-					{
-						"internalType": "bytes32",
-						"name": "",
-						"type": "bytes32"
-					}
-				],
+				"name": "checkSynt",
+				"outputs": [],
 				"stateMutability": "nonpayable",
 				"type": "function"
 			}
@@ -43,7 +32,7 @@
 	},
 	"settings": {
 		"compilationTarget": {
-			"contracts_dex/contracts/IBridge.sol": "IBridge"
+			"contracts_dex/contracts/checkSynt.sol": "SynthCheckBridgeMock"
 		},
 		"evmVersion": "istanbul",
 		"libraries": {},
@@ -57,11 +46,11 @@
 		"remappings": []
 	},
 	"sources": {
-		"contracts_dex/contracts/IBridge.sol": {
-			"keccak256": "0xac874e6e5557f088b6c0b18c4a14f4713e1b5abb2cebced90d35e097cfffe8f3",
+		"contracts_dex/contracts/checkSynt.sol": {
+			"keccak256": "0x2111cc54961cafb5fd66e9556b76cc3811c6fb7cac369e58c335b3f9ec81d0d7",
 			"urls": [
-				"bzz-raw://c41873586924d88606580d3ade905d96627ad477e025defe30a17604e393a2cd",
-				"dweb:/ipfs/QmSCVCUeprKc3UTqQG2jDC4NYiucXGtjdSnEvqjsfBH4Nz"
+				"bzz-raw://4fe76f9780bba36a313377f629b117ae298177968a863c4b95116730099daed7",
+				"dweb:/ipfs/Qmb3sb5DktnWBszpPm7PMKq1GPUwcfGPqVmvEgo3Kh3tmk"
 			]
 		}
 	},

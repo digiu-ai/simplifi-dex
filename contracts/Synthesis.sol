@@ -44,7 +44,7 @@ contract Synthesis is Ownable{
     RequestState state;
   }
 
-    // SYNT
+    // can called only by bridge after initiation on a second chain
     function mintSyntheticToken(bytes32 _txID, address _tokenReal, uint256 _amount, address _to) onlyBridge external {
        // todo add chek to Default - чтобы не было по бриджу
         require(synthesizeStates[_txID] == SynthesizeState.Default, "Synt: emergencyUnsynthesizedRequest called or tokens has been already synthesized");
@@ -53,7 +53,7 @@ contract Synthesis is Ownable{
         emit SynthesisizeCompleted(_txID, _to, _amount, _tokenReal);
     }
 
-    // can call several times
+    // Revert synthesize() operation, can be called several times
     function emergencyUnsyntesizeRequest(bytes32 _txID) external{
 
         require(synthesizeStates[_txID]!= SynthesizeState.Synthesized, "Synt: syntatic tokens already minted");
@@ -65,10 +65,8 @@ contract Synthesis is Ownable{
         emit RevertSynthesizeRequest(_txID, msg.sender);
     }
 
-
-
-    // BURN
-    function burnSyntheticToken(address _stoken,uint256 _amount, address _chain2address) external returns (bytes32 txID) {
+    // sToken -> Token on a second chain
+    function burnSyntheticToken(address _stoken, uint256 _amount, address _chain2address) external returns (bytes32 txID) {
         ISyntERC20(_stoken).burn(msg.sender, _amount);
         txID = keccak256(abi.encodePacked(this, requestCount));
 
@@ -88,7 +86,7 @@ contract Synthesis is Ownable{
     }
 
 
-
+    // can called only by bridge after initiation on a second chain
     function emergencyUnburn(bytes32 _txID) onlyBridge external {
         TxState storage txState = requests[_txID];
         require(txState.state ==  RequestState.Sent, 'Synt: state not open or tx does not exist');
@@ -117,6 +115,7 @@ contract Synthesis is Ownable{
       portal = _adr;
     }
 
+    // todo must be removed in prod
     function setBridge(address _adr) onlyOwner external{
       //require(bridge == address(0x0));
       bridge = _adr;

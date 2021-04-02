@@ -21,6 +21,43 @@
 				"inputs": [
 					{
 						"indexed": true,
+						"internalType": "bytes32",
+						"name": "_id",
+						"type": "bytes32"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "_from",
+						"type": "address"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "_to",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "_amount",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "_token",
+						"type": "address"
+					}
+				],
+				"name": "BurnRequest",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
 						"internalType": "address",
 						"name": "previousOwner",
 						"type": "address"
@@ -33,6 +70,87 @@
 					}
 				],
 				"name": "OwnershipTransferred",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "bytes32",
+						"name": "_id",
+						"type": "bytes32"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "_to",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "_amount",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "_token",
+						"type": "address"
+					}
+				],
+				"name": "RevertBurnCompleted",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "bytes32",
+						"name": "_id",
+						"type": "bytes32"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "_to",
+						"type": "address"
+					}
+				],
+				"name": "RevertSynthesizeRequest",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "bytes32",
+						"name": "_id",
+						"type": "bytes32"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "_to",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "_amount",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "_token",
+						"type": "address"
+					}
+				],
+				"name": "SynthesisizeCompleted",
 				"type": "event"
 			},
 			{
@@ -62,11 +180,11 @@
 					},
 					{
 						"internalType": "address",
-						"name": "chain2address",
+						"name": "_chain2address",
 						"type": "address"
 					}
 				],
-				"name": "burn",
+				"name": "burnSyntheticToken",
 				"outputs": [
 					{
 						"internalType": "bytes32",
@@ -108,7 +226,7 @@
 						"type": "bytes32"
 					}
 				],
-				"name": "emergencyCashoutRequest",
+				"name": "emergencyUnburn",
 				"outputs": [],
 				"stateMutability": "nonpayable",
 				"type": "function"
@@ -121,7 +239,7 @@
 						"type": "bytes32"
 					}
 				],
-				"name": "emergencyUnburn",
+				"name": "emergencyUnsyntesizeRequest",
 				"outputs": [],
 				"stateMutability": "nonpayable",
 				"type": "function"
@@ -152,25 +270,6 @@
 				"name": "mintSyntheticToken",
 				"outputs": [],
 				"stateMutability": "nonpayable",
-				"type": "function"
-			},
-			{
-				"inputs": [
-					{
-						"internalType": "bytes32",
-						"name": "",
-						"type": "bytes32"
-					}
-				],
-				"name": "mintingStates",
-				"outputs": [
-					{
-						"internalType": "uint256",
-						"name": "state",
-						"type": "uint256"
-					}
-				],
-				"stateMutability": "view",
 				"type": "function"
 			},
 			{
@@ -280,9 +379,9 @@
 						"type": "address"
 					},
 					{
-						"internalType": "uint256",
+						"internalType": "enum Synthesis.RequestState",
 						"name": "state",
-						"type": "uint256"
+						"type": "uint8"
 					}
 				],
 				"stateMutability": "view",
@@ -312,6 +411,25 @@
 				"name": "setPortal",
 				"outputs": [],
 				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "bytes32",
+						"name": "",
+						"type": "bytes32"
+					}
+				],
+				"name": "synthesizeStates",
+				"outputs": [
+					{
+						"internalType": "enum Synthesis.SynthesizeState",
+						"name": "",
+						"type": "uint8"
+					}
+				],
+				"stateMutability": "view",
 				"type": "function"
 			},
 			{
@@ -351,7 +469,7 @@
 	},
 	"settings": {
 		"compilationTarget": {
-			"dex/dex_core/contracts/Synthesis.sol": "Synthesis"
+			"contracts_dex/contracts/Synthesis.sol": "Synthesis"
 		},
 		"evmVersion": "istanbul",
 		"libraries": {},
@@ -397,29 +515,21 @@
 				"dweb:/ipfs/QmTbFya18786ckJfLYUoWau9jBTKfmWnWm5XSViWvB7PXN"
 			]
 		},
-		"@openzeppelin/contracts/utils/math/SafeMath.sol": {
-			"keccak256": "0x2526b7c6a366fc211bbc176078ab02b83833e7682abcc5b3bed9d700b34e2a3e",
-			"license": "MIT",
+		"contracts_dex/contracts/IBridge.sol": {
+			"keccak256": "0xac874e6e5557f088b6c0b18c4a14f4713e1b5abb2cebced90d35e097cfffe8f3",
 			"urls": [
-				"bzz-raw://5f9529d3d365e8415155cee11394e0f7c0de2152b601b7e77508fce16cb4a509",
-				"dweb:/ipfs/QmVhbcLVsAzvqfjsdLwy25XMjgVJm7Z3w2JCNiNbZF2GHT"
+				"bzz-raw://c41873586924d88606580d3ade905d96627ad477e025defe30a17604e393a2cd",
+				"dweb:/ipfs/QmSCVCUeprKc3UTqQG2jDC4NYiucXGtjdSnEvqjsfBH4Nz"
 			]
 		},
-		"dex/dex_core/contracts/IBridge.sol": {
-			"keccak256": "0xc335408cc066b2a2274cfadfdfbe6361ed868e09c6b575fa60e138b0b24c0e0e",
-			"urls": [
-				"bzz-raw://818a724e63f8b86a66822534b27e2e9d1b491b6fb07706b17c4be56630863e7c",
-				"dweb:/ipfs/QmWgEtHyEtm9omwgke4vNLoG5YjrbPQ93Dn4RvqtpymxwJ"
-			]
-		},
-		"dex/dex_core/contracts/ISyntERC20.sol": {
+		"contracts_dex/contracts/ISyntERC20.sol": {
 			"keccak256": "0xf55baa866ad9b573ad8eed88226bd67b3c0c74a4d46732ad7f74b6038c6dc764",
 			"urls": [
 				"bzz-raw://fc88c1a385ae44a6b3a21df3f9075c6ab96b21915363eeeb53cc11bdda92b12c",
 				"dweb:/ipfs/QmTSqKbzUbN1nhru61SYArcqa8mTrWtXx17zYAKnxWaNqU"
 			]
 		},
-		"dex/dex_core/contracts/SyntERC20.sol": {
+		"contracts_dex/contracts/SyntERC20.sol": {
 			"keccak256": "0x5f7f21ff95a61597c6885a33af1c6980c695d3e6ee426a1fd27ef8e047672ec2",
 			"license": "MIT",
 			"urls": [
@@ -427,11 +537,11 @@
 				"dweb:/ipfs/QmWqbBnK6yd7J9fFrCJexcbV9iEtJqsd1xLJGgcVDCsWY4"
 			]
 		},
-		"dex/dex_core/contracts/Synthesis.sol": {
-			"keccak256": "0xbe627401787dc3074d16074b43796ad952cce4e54a64f21757f518222b54b682",
+		"contracts_dex/contracts/Synthesis.sol": {
+			"keccak256": "0xaa544d3c3eeb88db8f1fa56d7c8a932bfc6db0465aed88827983c356a0ce1e61",
 			"urls": [
-				"bzz-raw://4dec2d0a102836d9f50cd8401ca86d89e42785540431a4a4cb928688024a6041",
-				"dweb:/ipfs/QmXAFyDX59VqCUyeDpL5h3c7MgnfT7E9EXLm5uJLAiUT5H"
+				"bzz-raw://2efa1f8995865c14f2abb073fd61d43068319e6d7ea15d3ef12a078432f095a7",
+				"dweb:/ipfs/QmSw3XwUMbwjTHm1EfanQ3XY8kUy8oEoV5bSfwrXQiehXr"
 			]
 		}
 	},

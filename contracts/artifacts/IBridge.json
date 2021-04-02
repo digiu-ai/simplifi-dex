@@ -47,7 +47,7 @@
 		},
 		"gasEstimates": null,
 		"methodIdentifiers": {
-			"transmitRequest(bytes,address)": "41f6cc5e"
+			"transmitRequestV2(bytes,address)": "72198f55"
 		}
 	},
 	"abi": [
@@ -64,7 +64,7 @@
 					"type": "address"
 				}
 			],
-			"name": "transmitRequest",
+			"name": "transmitRequestV2",
 			"outputs": [
 				{
 					"internalType": "bytes32",

@@ -436,7 +436,7 @@
 	},
 	"settings": {
 		"compilationTarget": {
-			"dex/dex_core/contracts/SyntERC20.sol": "SyntERC20"
+			"contracts_dex/contracts/SyntERC20.sol": "SyntERC20"
 		},
 		"evmVersion": "istanbul",
 		"libraries": {},
@@ -482,7 +482,7 @@
 				"dweb:/ipfs/QmTbFya18786ckJfLYUoWau9jBTKfmWnWm5XSViWvB7PXN"
 			]
 		},
-		"dex/dex_core/contracts/SyntERC20.sol": {
+		"contracts_dex/contracts/SyntERC20.sol": {
 			"keccak256": "0x5f7f21ff95a61597c6885a33af1c6980c695d3e6ee426a1fd27ef8e047672ec2",
 			"license": "MIT",
 			"urls": [
