@@ -8,7 +8,7 @@ import './interfaces/IERC20.sol';
 import './interfaces/IPancakeFactory.sol';
 import './interfaces/IPancakeCallee.sol';
 
-contract HalfPair is IPancakePair, PancakeERC20 {
+contract PancakePair is IPancakePair, PancakeERC20 {
     using SafeMath  for uint;
     using UQ112x112 for uint224;
 
@@ -17,7 +17,7 @@ contract HalfPair is IPancakePair, PancakeERC20 {
 
     address public factory;
     address public token0;
-    address public token1Syntetic;
+    address public token1;
 
     uint112 private reserve0;           // uses single storage slot, accessible via getReserves
     uint112 private reserve1;           // uses single storage slot, accessible via getReserves
@@ -34,15 +34,6 @@ contract HalfPair is IPancakePair, PancakeERC20 {
         _;
         unlocked = 1;
     }
-    
-    struct TxState {
-    address recepient;
-    uint256 amount1;
-    uint256 amount2;
-    uint256 balancePool2;
-    bytes32 tx;
-    bytes32 func;
-  }
 
     function getReserves() public view returns (uint112 _reserve0, uint112 _reserve1, uint32 _blockTimestampLast) {
         _reserve0 = reserve0;
@@ -114,34 +105,6 @@ contract HalfPair is IPancakePair, PancakeERC20 {
             kLast = 0;
         }
     }
-    
-     function addLiquidity(uint256 amountNet1,
-                      uint256 amountNet2,
-                      address luqidityProviderNet2,
-                      uint256 balancePoolNet2
- ) external 
-
-  require(luqidityProviderNet2 != address(0), "NULL ADDRESS");
-  require(secondPartPool != address(0), "BAD ADDRESS");
-  //TODO WARN how does check the balance senderNet2 ?
-  //TODO? invoke only bsc
-  
-  IERC20(tokenOfPool).transferFrom(msg.sender, address(this), amountNet1);
-  bytes memory out  = abi.encodeWithSelector(bytes4(keccak256(bytes('_addLiquidity(address,uint256)'))), luqidityProviderNet2, amountNet2);
-  bytes32 requestId = Brige(bridgeAddress).transmitRequest(SET_REQUEST_TYPE, IHexstring(util).bytesToHexString(out), Other.toAsciiString(secondPartPool));
-
-  TxState storage simpleState = pendingRequests[requestId];
-  simpleState.recepient    = msg.sender;
-  simpleState.amount1      = amountNet1;
-  simpleState.amount2      = amountNet2;
-  simpleState.balancePool2 = balancePoolNet2;
-  simpleState.tx           = "0x0";
-  simpleState.func         = "addLiquidity";
-  //TODO mint LP token after executing tx on net1 and net2 (balancePoolNet1 + balancePoolNet2)
-  //mint(msg.sender, amountNet1, amountNet2, balancePoolNet2);
-
-  emit AddLiquidity(requestId, block.number);
-}
 
     // this low-level function should be called from a contract which performs important safety checks
     function mint(address to) external lock returns (uint liquidity) {
